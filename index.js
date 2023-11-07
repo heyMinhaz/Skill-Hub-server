@@ -30,7 +30,7 @@ async function run() {
       await client.connect();
       
     const serviceCollection = client.db("skillHub").collection("services");
-
+ 
 app.post('/services', async (req, res) => {
   const newService = req.body;
  
