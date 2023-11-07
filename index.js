@@ -33,12 +33,14 @@ async function run() {
 
 app.post('/services', async (req, res) => {
   const newService = req.body;
-
+ 
   const result = await serviceCollection.insertOne(newService);
   console.log(result);
   res.send(result);
 });
 
+  
+      
   
     
     app.get('/services', async (req, res) => {
@@ -46,6 +48,23 @@ app.post('/services', async (req, res) => {
       const result = await cursor.toArray();
       res.send(result);
     });
+
+
+  app.get("/services/:_id", async (req, res) => {
+    const id = req.params._id;
+    const query = { _id: new ObjectId(id) };
+    const result = await serviceCollection.findOne(query);
+    res.send(result);
+    });
+    
+// app.get("/services/:_id", async (req, res) => {
+//   const id = req.params._id;
+//   const query = { _id: new ObjectId(id) };
+//   const result = await serviceCollection.findOne(query);
+//   res.send(result);
+// });
+
+
     // app.get("/services", async (req, res) => {
     //   const result = await usersCollection.find().toArray();
     //   res.send(result);
