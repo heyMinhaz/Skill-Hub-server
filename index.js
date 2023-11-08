@@ -8,7 +8,7 @@ const port = process.env.PORT || 5001;
 app.use(cors());
 app.use(express.json());
 
-
+ 
 
 
 
@@ -30,17 +30,38 @@ async function run() {
       await client.connect();
       
     const serviceCollection = client.db("skillHub").collection("services");
+    const addserviceCollection = client.db("skillHub").collection("addservices");
+
+
  
 app.post('/services', async (req, res) => {
   const newService = req.body;
- 
+  
   const result = await serviceCollection.insertOne(newService);
   console.log(result);
   res.send(result);
 });
-
+    app.post('/addservices', async (req, res) => {
   
+  const newService = req.body;
+  
+  const result = await addserviceCollection.insertOne(newService);
+  console.log(result);
+  res.send(result);
+});
+
+   app.get("/addservices", async (req, res) => {
+     const cursor = addserviceCollection.find();
+     const result = await cursor.toArray();
+     res.send(result);
+   }); 
       
+    
+    // app.get("/addservices",async (req, res) => {
+    
+    //   const result = await addserviceCollection.find().toArray();
+    //   res.send(result);
+    // });    
   
     
     app.get('/services', async (req, res) => {
@@ -59,16 +80,20 @@ app.post('/services', async (req, res) => {
     
 // app.get("/services/:_id", async (req, res) => {
 //   const id = req.params._id;
+
+//   const options ={
+
+// sort: {"imdb.rating": -1},
+
+// projection: {  title: 1, imdb: 1}
+// }
+
 //   const query = { _id: new ObjectId(id) };
 //   const result = await serviceCollection.findOne(query);
 //   res.send(result);
 // });
 
 
-    // app.get("/services", async (req, res) => {
-    //   const result = await usersCollection.find().toArray();
-    //   res.send(result);
-    // });
 
 
     // Send a ping to confirm a successful connection
