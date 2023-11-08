@@ -41,7 +41,7 @@ const verifyToken = async (req, res, next) => {
       }
       req.user = decoded;
       console.log("decoded-data",decoded);
-      next();
+      next();  
   })
 }
 
