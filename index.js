@@ -24,26 +24,6 @@ const client = new MongoClient(uri, {
   },
 });
 
-// middlewares
-const logger = async (req, res, next) => {
-  console.log('called:', req.host, req.originalUrl)
-  next();
-}
-
-const verifyToken = async (req, res, next) => {
-  const token = req.cookies?.token;
-  if (!token) {
-      return res.status(401).send({ message: 'unauthorized access' })
-  }
-  jwt.verify(token, secret, (err, decoded) => {
-      if (err) {
-          return res.status(401).send({ message: 'unauthorized access' })
-      }
-      req.user = decoded;
-      console.log("decoded-data",decoded);
-      next();  
-  })
-}
 
 
 async function run() {
@@ -83,7 +63,7 @@ async function run() {
       const options = { upsert: true };
       const updateData = req.body;
 
-      const phone = {
+      const data = {
         $set: {
           serviceName: updateData.serviceName,
           servicephotoURL: updateData.servicephotoURL,
@@ -96,21 +76,29 @@ async function run() {
         },
       };
 
-      const result = await serviceCollection.updateOne(filter, phone, options);
+      const result = await serviceCollection.updateOne(filter, data, options);
 
       res.send(result);
     });
 
-    // app.get("/addservices",async (req, res) => {
 
-    //   const result = await addserviceCollection.find().toArray();
-    //   res.send(result);
-    // });
 
     app.get("/services", async (req, res) => {
-      const cursor = serviceCollection.find();
+     
+      let query = {};
+      const name = req.query.serviceName;
+      if (name) {
+        query.serviceName = name;
+      }
+      
+
+      const cursor = serviceCollection.find(query);
       const result = await cursor.toArray();
       res.send(result);
+
+
+
+
     });
 
     app.get("/services/:_id", async (req, res) => {
@@ -120,43 +108,15 @@ async function run() {
       res.send(result);
     });
 
-    //jwt post
-    app.post("/jwt", async (req, res) => {
-      const user = req.body;
-      console.log("access-token", user);
-      const token = jwt.sign(user, secret, { expiresIn: "10h" });
 
-      res
-        .cookie("token", token, {
-          httpOnly: true,
-          secure: false,
-        })
-        .send({ success: true });
-    });
 
-    // app.get("/services/:_id", async (req, res) => {
-    //   const id = req.params._id;
 
-    //   const options ={
-
-    // sort: {"imdb.rating": -1},
-
-    // projection: {  title: 1, imdb: 1}
-    // }
-
-    //   const query = { _id: new ObjectId(id) };
-    //   const result = await serviceCollection.findOne(query);
-    //   res.send(result);
-    // });
-
-    // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
   } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
+   
   }
 }
 run().catch(console.dir);
